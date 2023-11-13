@@ -1,21 +1,9 @@
 class Coupon < ApplicationRecord
-  enum discount_type: { flat: 0, percentage: 1 }
-
   validates :code, presence: true, uniqueness: true
+  validates :discount_type, presence: true
   validates :discount_value, presence: true
-  validate :immutable_discount, on: :update
+  validates :max_amount, presence: true
+  validates :min_purchase_value, presence: true
 
-  before_save :default_values
-
-  def immutable_discount
-    if active_changed?(from: false, to: true) && discount_value_changed?
-      errors.add(:discount_value, "can't be changed after activation")
-    end
-  end
-
-  def default_values
-    self.count_used ||= 0
-  end
-
-  # Logic to apply the coupon...
+  # Aquí puedes añadir cualquier otra lógica necesaria para tu modelo
 end

@@ -1,5 +1,3 @@
-# config/routes.rb
-
 Rails.application.routes.draw do
  
   devise_for :users, controllers: { sessions: 'my_sessions' }
@@ -8,13 +6,17 @@ Rails.application.routes.draw do
     # Tus rutas existentes para los cupones
     resources :coupons, only: [:create, :index, :update, :destroy]
 
-    # Aquí se agregan las nuevas rutas específicas para los clientes
+    # Rutas específicas para los clientes dentro del namespace 'customer'
     namespace :customer do
       # Ruta para verificar el cupón
       post 'coupons/verify', to: 'coupons#verify'
 
-      # Ruta para canjear el cupón
-      post 'coupons/:id/redeem', to: 'coupons#redeem'
+      # Rutas para las acciones sobre cupones individuales
+      resources :coupons, only: [] do
+        member do
+          post :redeem
+        end
+      end
     end
   end
 end

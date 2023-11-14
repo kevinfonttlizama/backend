@@ -37,24 +37,20 @@ module Api
         def redeem
           coupon = Coupon.find(params[:id])
   
-          if coupon.nil?
-            render json: { error: "Coupon not found" }, status: :not_found
-          elsif !coupon.active
-            render json: { error: "Coupon is not active" }, status: :forbidden
-          elsif coupon_already_used?(coupon)
-            render json: { error: "Coupon has already been used" }, status: :forbidden
-          else
-            # Aquí deberías implementar la lógica para marcar el cupón como usado por este cliente
+          if !coupon_already_used?(coupon)
+            UserCoupon.create(user: current_user, coupon: coupon)
             render json: { message: "Coupon redeemed successfully" }, status: :ok
+          else
+            render json: { error: "Coupon has already been used" }, status: :forbidden
           end
         end
   
         private
   
         def coupon_already_used?(coupon)
-          # Implementa la lógica para verificar si el cupón ya ha sido usado por el usuario actual
-          # Esto depende de cómo estés rastreando el uso de los cupones en tu aplicación
+          UserCoupon.exists?(user: current_user, coupon: coupon)
         end
+        
   
         def format_discount(coupon)
           coupon.discount_type == 'percentage' ? "#{coupon.discount_value}%" : "$#{coupon.discount_value}"

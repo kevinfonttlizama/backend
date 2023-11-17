@@ -1,20 +1,18 @@
 Rails.application.routes.draw do
- 
   devise_for :users, controllers: { sessions: 'my_sessions' }
   
   namespace :api do
-    # Tus rutas existentes para los cupones
+    # Rutas para los cupones (a nivel general)
     resources :coupons, only: [:create, :index, :update, :destroy]
 
-    # Rutas específicas para los clientes dentro del namespace 'customer'
     namespace :customer do
-      # Ruta para verificar el cupón
+      # Ruta para verificar el cupón (sin requerir autenticación por Devise)
       post 'coupons/verify', to: 'coupons#verify'
 
       # Rutas para las acciones sobre cupones individuales
       resources :coupons, only: [] do
         member do
-          post :redeem
+          post :redeem  # Esta acción sí requiere autenticación
         end
       end
     end

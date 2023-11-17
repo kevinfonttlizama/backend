@@ -1,16 +1,30 @@
 class User < ApplicationRecord
+  has_many :user_coupons
+  has_many :coupons, through: :user_coupons
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :validatable,
+         :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
 
-  # Elimina la línea de enum y asegúrate de que tienes un campo 'role' en tu base de datos
-  # enum role: { customer: 0, admin: 1 }
+  before_save :ensure_authentication_token
 
-  after_initialize :set_default_role, if: :new_record?
+  def generate_authentication_token
+    payload = { user_id: self.id }
+    JWT.encode(payload, Rails.application.secret_key_base, 'HS256')
+  end
 
   private
 
   def set_default_role
-    self.role ||= 'customer' # Aquí simplemente asignas un string
-    puts(role)
+    self.role ||= 'customer'
   end
+
+  def ensure_authentication_token
+    if authentication_token.blank?
+      self.authentication_token = generate_authentication_token
+    end
+  end
+
+
+
+  
 end

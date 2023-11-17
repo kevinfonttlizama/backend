@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_11_13_163013) do
+ActiveRecord::Schema[7.1].define(version: 2023_11_16_200657) do
   create_table "coupons", force: :cascade do |t|
     t.string "code"
     t.string "discount_type"
@@ -21,6 +21,15 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_13_163013) do
     t.integer "count_used"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "description"
+  end
+
+  create_table "jwt_denylists", force: :cascade do |t|
+    t.string "jti"
+    t.datetime "exp"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
   create_table "usage_records", force: :cascade do |t|
@@ -30,6 +39,15 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_13_163013) do
     t.datetime "updated_at", null: false
     t.index ["coupon_id"], name: "index_usage_records_on_coupon_id"
     t.index ["user_id"], name: "index_usage_records_on_user_id"
+  end
+
+  create_table "user_coupons", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "coupon_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["coupon_id"], name: "index_user_coupons_on_coupon_id"
+    t.index ["user_id"], name: "index_user_coupons_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -49,4 +67,6 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_13_163013) do
 
   add_foreign_key "usage_records", "coupons"
   add_foreign_key "usage_records", "users"
+  add_foreign_key "user_coupons", "coupons"
+  add_foreign_key "user_coupons", "users"
 end

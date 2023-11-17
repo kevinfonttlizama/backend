@@ -12,7 +12,8 @@ gem "rails", "~> 7.1.2"
 gem "pundit"
 
 gem 'devise'
-
+gem 'devise-jwt'
+gem 'jwt'
 
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", "~> 1.4"

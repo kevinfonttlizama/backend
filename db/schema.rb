@@ -19,7 +19,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_16_200657) do
     t.integer "min_purchase_value"
     t.boolean "active"
     t.integer "count_used"
-    t.datetime "created_at", null: false
+    t.datetimed_at", nue "creatll: false
     t.datetime "updated_at", null: false
     t.string "description"
   end

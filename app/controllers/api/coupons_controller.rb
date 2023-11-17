@@ -47,8 +47,5 @@ module Api
         params.require(:coupon).permit(:code, :discount_type, :discount_value, :max_amount, :min_purchase_value, :active)
       end
 
-      def check_admin
-        # Tu lógica para verificar si el usuario es un administrador
-      end
   end
 end

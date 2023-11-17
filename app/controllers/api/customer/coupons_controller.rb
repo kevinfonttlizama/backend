@@ -11,7 +11,7 @@ module Api
             render json: { error: "Coupon not found" }, status: :not_found
           elsif !coupon.active
             render json: { error: "Coupon is not active" }, status: :forbidden
-          elsif coupon_already_used?(coupon, current_user) # Pasar el usuario actual como segundo argumento
+          elsif coupon_already_used?(coupon, current_user) # Pass the actual user as a secondary argument
             render json: { error: "Coupon has already been used" }, status: :forbidden
           else
             render json: { 
@@ -45,7 +45,7 @@ module Api
           if UserCoupon.exists?(user: current_user, coupon: coupon)
             render json: { error: "Coupon has already been used" }, status: :forbidden
           else
-            # Asocia el cupón con el usuario actual solo si no lo ha canjeado antes
+            # Asociates the coupon with the0 actual user only if not redemeed before
             current_user.coupons << coupon
             render json: { message: "Coupon redeemed successfully" }, status: :ok
           end

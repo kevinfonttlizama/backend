@@ -10,5 +10,15 @@
 
 #run  rails db:seed to test the users with credentials the application redirects to the dashboard based in role 
 
-testuser1 = User.New(email: 'testsubject@example.com', password: "123456", role:admin)
-testuser2 = User.New(email: 'adminsubject@example.com', password: "123456", role:admin)
+# db/seeds.rb
+
+# testadmin1 = User.create!(email: 'testadmin1@example.com', password: '123456', role: 'admin')
+
+# testcostumer1 = User.create!(email: 'testcustomer1@example.com', password: '123456', role: 'admin')
+
+# testcostumer2 = User.create!(email: 'testcustomer22@example.com', password: '123456', role: 'admin')
+
+# testcostumer3 = User.create!(email: 'testcustomer3@example.com', password: '123456', role: 'customer')
+
+# testcostumer4 = User.create!(email: 'testcustomer4@example.com', password: '123456', role: 'customer')
+

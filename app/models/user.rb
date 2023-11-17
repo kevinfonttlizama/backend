@@ -7,7 +7,7 @@ class User < ApplicationRecord
 
   before_save :ensure_authentication_token
 
-  def generate_authentication_token
+  def generate_authentication_token #genering jwt 
     payload = { user_id: self.id }
     JWT.encode(payload, Rails.application.secret_key_base, 'HS256')
   end

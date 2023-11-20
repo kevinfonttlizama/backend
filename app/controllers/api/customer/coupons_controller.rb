@@ -6,35 +6,31 @@ module Api
 
         def verify
           coupon = Coupon.find_by(code: params[:code])
-        
+          purchase_total = params[:purchase_total].to_f
           if coupon.nil?
             render json: { error: "Coupon not found" }, status: :not_found
           elsif !coupon.active
             render json: { error: "Coupon is not active" }, status: :forbidden
-          elsif coupon_already_used?(coupon, current_user) # Pass the actual user as a secondary argument
+          elsif coupon_already_used?(coupon, current_user)
             render json: { error: "Coupon has already been used" }, status: :forbidden
+          elsif times_used_by_user(coupon, current_user) >= (coupon.max_count || Float::INFINITY)
+            render json: { error: "Coupon usage limit reached for this user" }, status: :forbidden
+          elsif purchase_total < coupon.min_purchase_value
+            render json: { error: "Purchase total is less than minimum required for coupon" }, status: :forbidden
           else
-            render json: { 
-              id: coupon.id, 
-              description: coupon.description, 
-              discount_type: coupon.discount_type, 
-              discount_value: coupon.discount_value 
+            render json: {
+              id: coupon.id,
+              description: coupon.description,
+              discount_type: coupon.discount_type,
+              discount_value: coupon.discount_value,
+              max_amount: coupon.max_amount, # Asegúrate de que esto esté incluido
+              min_purchase_value: coupon.min_purchase_value # Y esto también
             }, status: :ok
           end
         end
             
         
         def redeem
-          begin
-            decoded_token = JWT.decode(request.headers['Authorization'].split(' ').last, Rails.application.secret_key_base, true, { algorithm: 'HS256' })
-            user_id = decoded_token[0]['user_id'] # Adjust according to your token's payload structure
-            @current_user = User.find(user_id)
-          rescue JWT::DecodeError => e
-            Rails.logger.info "JWT Decode Error: #{e.message}"
-          end
-          Rails.logger.info "Authorization Header: #{request.headers['Authorization']}"
-          Rails.logger.info "Manually Decoded Current User: #{@current_user.inspect}"
-          Rails.logger.info "Current User: #{current_user.inspect}"
           coupon = Coupon.find(params[:id])
         
           if current_user.nil?
@@ -42,40 +38,32 @@ module Api
             return
           end
         
-          if UserCoupon.exists?(user: current_user, coupon: coupon)
-            render json: { error: "Coupon has already been used" }, status: :forbidden
-          else
-            # Asociates the coupon with the0 actual user only if not redemeed before
-            current_user.coupons << coupon
+          if coupon_can_be_used_by_user?(coupon, current_user)
+            decrement_coupon_usage_for_user(coupon, current_user)
             render json: { message: "Coupon redeemed successfully" }, status: :ok
+          else
+            render json: { error: "Coupon has already been used or limit reached" }, status: :forbidden
           end
         end
         
 
-  private
-
-   def coupon_already_used?(coupon, user)
-     UserCoupon.exists?(user: user, coupon: coupon)
-   end
-  end
-        
-      
-        
         private
-        
+
+        def times_used_by_user(coupon, user)
+          UserCoupon.where(user: user, coupon: coupon).count
+        end
+  
+        def coupon_already_used?(coupon, user)
+          UserCoupon.exists?(user: user, coupon: coupon)
+        end
+  
         def format_discount(coupon)
           return "Invalid discount data" if coupon.discount_type.nil? || coupon.discount_value.nil?
           coupon.discount_type == 'percentage' ? "#{coupon.discount_value}%" : "$#{coupon.discount_value}"
-        end
-      
-  
-        private       
-        
-  
-        def format_discount(coupon)
-          coupon.discount_type == 'percentage' ? "#{coupon.discount_value}%" : "$#{coupon.discount_value}"
-        end
+        end         
       end
     end
+  end  
+    
 
   

@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  has_many :purchases
   has_many :user_coupons
   has_many :coupons, through: :user_coupons
   devise :database_authenticatable, :registerable,
@@ -7,10 +8,16 @@ class User < ApplicationRecord
 
   before_save :ensure_authentication_token
 
+  def admin?
+    role == 'admin'
+  end
+
+
   def generate_authentication_token #genering jwt 
     payload = { user_id: self.id }
     JWT.encode(payload, Rails.application.secret_key_base, 'HS256')
   end
+
 
   private
 

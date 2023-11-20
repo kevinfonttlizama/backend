@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_11_16_200657) do
+ActiveRecord::Schema[7.1].define(version: 2023_11_20_212655) do
   create_table "coupons", force: :cascade do |t|
     t.string "code"
     t.string "discount_type"
@@ -19,9 +19,17 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_16_200657) do
     t.integer "min_purchase_value"
     t.boolean "active"
     t.integer "count_used"
-    t.datetimed_at", nue "creatll: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "description"
+    t.integer "max_count"
+  end
+
+  create_table "items", force: :cascade do |t|
+    t.string "name"
+    t.integer "price"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "jwt_denylists", force: :cascade do |t|
@@ -30,6 +38,15 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_16_200657) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["jti"], name: "index_jwt_denylists_on_jti"
+  end
+
+  create_table "purchases", force: :cascade do |t|
+    t.integer "user_id"
+    t.decimal "total_amount", precision: 10, scale: 2
+    t.integer "coupon_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "coupon_code"
   end
 
   create_table "usage_records", force: :cascade do |t|

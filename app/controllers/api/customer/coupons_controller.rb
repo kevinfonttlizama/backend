@@ -6,28 +6,62 @@ module Api
 
         def verify
           coupon = Coupon.find_by(code: params[:code])
+          return render json: { error: "Coupon not found" }, status: :not_found if coupon.nil?
           purchase_total = params[:purchase_total].to_f
-          if coupon.nil?
-            render json: { error: "Coupon not found" }, status: :not_found
-          elsif !coupon.active
-            render json: { error: "Coupon is not active" }, status: :forbidden
-          elsif coupon_already_used?(coupon, current_user)
-            render json: { error: "Coupon has already been used" }, status: :forbidden
-          elsif times_used_by_user(coupon, current_user) >= (coupon.max_count || Float::INFINITY)
-            render json: { error: "Coupon usage limit reached for this user" }, status: :forbidden
-          elsif purchase_total < coupon.min_purchase_value
-            render json: { error: "Purchase total is less than minimum required for coupon" }, status: :forbidden
-          else
-            render json: {
-              id: coupon.id,
-              description: coupon.description,
-              discount_type: coupon.discount_type,
-              discount_value: coupon.discount_value,
-              max_amount: coupon.max_amount, # Asegúrate de que esto esté incluido
-              min_purchase_value: coupon.min_purchase_value # Y esto también
-            }, status: :ok
+  
+          if !coupon.active
+            return render json: { error: "Coupon is not active" }, status: :forbidden
           end
+          
+          if coupon.used_by_user_count(current_user) >= (coupon.max_count || Float::INFINITY)
+            return render json: { error: "Coupon usage limit reached for this user" }, status: :forbidden
+          end
+        
+  
+          user_coupon_count = UserCoupon.where(user: current_user, coupon: coupon).count
+          if coupon.max_count.present? && user_coupon_count >= coupon.max_count
+            return render json: { error: "Coupon usage limit reached for this user" }, status: :forbidden
+          end
+  
+          if purchase_total < coupon.min_purchase_value
+            return render json: { error: "Purchase total is less than minimum required for coupon" }, status: :forbidden
+          end
+  
+          render json: {
+            id: coupon.id,
+            description: coupon.description,
+            discount_type: coupon.discount_type,
+            discount_value: coupon.discount_value,
+            max_amount: coupon.max_amount,
+            min_purchase_value: coupon.min_purchase_value,
+            max_count: coupon.max_count
+          }, status: :ok
         end
+        
+        def coupon_already_used_to_limit?(coupon, user)
+          user_coupon_count = Purchase.where(user: user, coupon: coupon).count
+          coupon.max_count.present? && user_coupon_count >= coupon.max_count
+        end
+        
+        
+  
+
+        def coupon_already_used?(coupon, user)
+          UserCoupon.exists?(user: user, coupon: coupon)
+        end
+
+        def times_used_by_user(coupon, user)
+          UserCoupon.where(user: user, coupon: coupon).count
+        end
+
+        def coupon_can_be_used_by_user?(coupon, user)
+          user_coupon_count = UserCoupon.where(user: user, coupon: coupon).count
+          coupon.max_count.nil? || user_coupon_count < coupon.max_count
+        end
+        
+          render json: { error: "Coupon has already been used or limit reached" }, status: :forbidden
+        end
+
             
         
         def redeem
@@ -38,24 +72,13 @@ module Api
             return
           end
         
-          if coupon_can_be_used_by_user?(coupon, current_user)
-            decrement_coupon_usage_for_user(coupon, current_user)
-            render json: { message: "Coupon redeemed successfully" }, status: :ok
-          else
-            render json: { error: "Coupon has already been used or limit reached" }, status: :forbidden
-          end
+
         end
         
+          
 
-        private
 
-        def times_used_by_user(coupon, user)
-          UserCoupon.where(user: user, coupon: coupon).count
-        end
-  
-        def coupon_already_used?(coupon, user)
-          UserCoupon.exists?(user: user, coupon: coupon)
-        end
+
   
         def format_discount(coupon)
           return "Invalid discount data" if coupon.discount_type.nil? || coupon.discount_value.nil?
@@ -63,7 +86,7 @@ module Api
         end         
       end
     end
-  end  
+
     
 
   

@@ -59,8 +59,8 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_20_212655) do
   end
 
   create_table "user_coupons", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "coupon_id"
+    t.integer "user_id", null: false
+    t.integer "coupon_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["coupon_id"], name: "index_user_coupons_on_coupon_id"

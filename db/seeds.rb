@@ -46,7 +46,6 @@
 #     max_amount: 50, 
 #     min_purchase_value: 100,
 #     active: true,
-#     count_used: 0, 
 #     description: "special discount",
 #     max_count: 5
 #   )
@@ -55,9 +54,31 @@
 #     discount_value: 100, 
 #     max_amount: 500, 
 #     min_purchase_value: 1000,
-#     active: true,
-#     count_used: 0, 
+#     active: true, 
 #     description: "with max_amount limitation",
 #     max_count: 1
 #   )
+
+# coupon4 = Coupon.create!(code: "COUPON123456789",discount_type: "percentage", 
+#     discount_value: 20, 
+#     max_amount: 5000, 
+#     min_purchase_value: 10000,
+#     active: true, 
+#     description: "with max_amount limitation",
+#     max_count: 2
+#   )
   
+
+
+# coupon6 = Coupon.create!(code: "COUPON12345678",discount_type: "percentage", 
+#     discount_value: 30, 
+#     max_amount: 5000, 
+#     min_purchase_value: 10000,
+#     active: true, 
+#     description: "with max_amount limitation",
+#     max_count: 2
+#   )
+  
+
+#run rails db:migrate
+#and run rails db:seed to use the examples :)

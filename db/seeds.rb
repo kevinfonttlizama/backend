@@ -26,8 +26,8 @@ testcostumer4 = User.create!(email: 'testcustomer4@example.com', password: '1234
 testcostumer5 = User.create!(
   email: 'testcustomer5@example.com',
   password: '123456',
-  password_confirmation: '123456', # Solo necesario si estás utilizando Devise
-  role: 'customer' # o cualquier otro rol que tengas definido
+  password_confirmation: '123456',
+  role: 'customer'
 )
 
 
